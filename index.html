@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TL Performance — 04 May 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#06090f;--card:#0d1220;--border:rgba(255,255,255,0.06);--text:#c8d6e5;--head:#f0f4f8;--g:#10b981;--r:#ef4444;--a:#f59e0b;--acc:#6c63ff;--pur:#9333ea;--blu:#3b82f6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.hdr{padding:18px 28px 12px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,#0f0a2e 0%,#06090f 100%)}
+.hdr h1{font-size:20px;font-weight:800;color:var(--head)}.hdr .sub{font-size:11px;color:#4a5568;margin-top:3px}.hdr .sub b{color:#a5b4fc}
+.filters{display:flex;gap:12px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.sel-wrap{display:flex;gap:6px;align-items:center}.sel-wrap label{font-size:10px;color:#475569;font-weight:600}
+select{background:#111827;color:#a5b4fc;border:1px solid rgba(108,99,255,0.25);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:600;font-family:inherit;cursor:pointer;outline:none}
+.tabs{display:flex;gap:0;margin-top:10px;border-bottom:2px solid rgba(255,255,255,0.06)}
+.tab{padding:8px 20px;cursor:pointer;font-size:12px;font-weight:700;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;user-select:none}
+.tab:hover{color:#94a3b8}.tab.on{color:#a5b4fc;border-bottom-color:#6c63ff}
+.body{padding:16px 28px;display:flex;flex-direction:column;gap:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px}
+.kpi{background:var(--card);border-radius:10px;padding:10px 12px;border:1px solid var(--border)}
+.kpi .lbl{font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;margin-bottom:2px}
+.kpi .val{font-size:19px;font-weight:800;line-height:1.1}
+.kpi .tgt{font-size:8px;color:#475569;margin-top:2px}
+.card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden}
+.card-h{padding:11px 16px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.8px}
+.card-b{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:10.5px;min-width:1050px}
+th{padding:7px 6px;font-weight:700;color:#64748b;text-align:center;font-size:9.5px;white-space:nowrap;background:rgba(255,255,255,0.02)}
+th:first-child,th:nth-child(2){text-align:left}
+td{padding:7px 6px;text-align:center;border-top:1px solid rgba(255,255,255,0.03)}
+td:first-child,td:nth-child(2){text-align:left;font-weight:600}
+tr.tot{border-top:2px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02)}
+tr.tot td{font-weight:700}
+tr:hover{background:rgba(255,255,255,0.02)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chart-card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:16px}
+.chart-card h3{font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.7px;margin-bottom:12px}
+.footer{text-align:center;padding:10px 0 20px;color:#334155;font-size:9px}
+.hide{display:none}
+.shc{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:middle}
+@media(max-width:768px){.g2{grid-template-columns:1fr}.body{padding:12px 14px}.hdr{padding:14px 14px 10px}table{min-width:850px}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>TL-wise Performance — 04 May 2026</h1>
+  <div class="sub"><b>377 HC (mapped)</b> · 69,719 Total Calls · 15,952 Connected · 1,729 Leads · 62 Admissions · 42 Apps</div>
+  <div class="filters">
+    <div class="sel-wrap"><label>Sales Head:</label><select id="shSel"><option value="ALL">All Sales Heads</option></select></div>
+  </div>
+  <div class="tabs" id="tabBar">
+    <div class="tab on" data-tab="0">TL Performance</div>
+    <div class="tab" data-tab="1">Sales Head View</div>
+    <div class="tab" data-tab="2">Unmapped</div>
+  </div>
+</div>
+
+<div class="body page" id="page0">
+  <div class="kpis" id="kpis0"></div>
+  <div class="card"><div class="card-h" id="tblTitle">Team Lead Performance — All Sales Heads</div><div class="card-b"><table id="tlTable"></table></div></div>
+  <div class="g2">
+    <div class="chart-card"><h3>Connect % by TL</h3><canvas id="ch0a"></canvas></div>
+    <div class="chart-card"><h3>>5min/Connected % by TL</h3><canvas id="ch0b"></canvas></div>
+  </div>
+  <div class="g2">
+    <div class="chart-card"><h3>Leads & Admissions by TL</h3><canvas id="ch0c"></canvas></div>
+    <div class="chart-card"><h3>HC vs Total Calls</h3><canvas id="ch0d"></canvas></div>
+  </div>
+</div>
+
+<div class="body page hide" id="page1">
+  <div class="kpis" id="kpis1"></div>
+  <div class="card"><div class="card-h">Sales Head Summary</div><div class="card-b"><table id="shTable"></table></div></div>
+  <div class="g2">
+    <div class="chart-card"><h3>Sales Heads — Volume & Efficiency</h3><canvas id="ch1a"></canvas></div>
+    <div class="chart-card"><h3>Sales Heads — Conversion</h3><canvas id="ch1b"></canvas></div>
+  </div>
+</div>
+
+<div class="body page hide" id="page2">
+  <div class="kpis" id="kpis2"></div>
+  <div class="card"><div class="card-h">Unmapped Counselors (54 HC, 568 Calls)</div><div class="card-b"><table id="umTable"></table></div></div>
+</div>
+
+<div class="footer">Source: TL_wise_4May26_metrics.xlsx · Date: 04 May 2026 · Mapped: 377 HC / 30 TLs · Unmapped: 54 HC / 568 calls</div>
+
+<script>
+const D={"tl":[{"name":"BLR.TL.Naveen Korra","sh":"Manoj","hc":15,"total_calls":3617,"unique_calls":3123,"unique_pct":86.3,"connected":817,"connect_pct":22.6,"calls_5min":22,"c5_conn_pct":2.7,"leads":41,"adm":1,"apps":1,"calls_lead":88.2,"calls_adm":3617.0,"app_adm":100.0},{"name":"BLR.OJT.Ayeesha Anjum  Ayub","sh":"Manoj","hc":16,"total_calls":3270,"unique_calls":2916,"unique_pct":89.2,"connected":1027,"connect_pct":31.4,"calls_5min":15,"c5_conn_pct":1.5,"leads":0,"adm":0,"apps":0,"calls_lead":0.0,"calls_adm":0.0,"app_adm":0.0},{"name":"BLR.TL.Arati Gupta","sh":"Manoj","hc":13,"total_calls":2743,"unique_calls":2158,"unique_pct":78.7,"connected":654,"connect_pct":23.8,"calls_5min":52,"c5_conn_pct":8.0,"leads":77,"adm":4,"apps":2,"calls_lead":35.6,"calls_adm":685.8,"app_adm":50.0},{"name":"BLR.TL.Shaik.Sabir","sh":"Manoj","hc":11,"total_calls":2225,"unique_calls":1810,"unique_pct":81.3,"connected":345,"connect_pct":15.5,"calls_5min":26,"c5_conn_pct":7.5,"leads":83,"adm":4,"apps":3,"calls_lead":26.8,"calls_adm":556.2,"app_adm":75.0},{"name":"BLR.TL.Nikita Sadarangani","sh":"Manoj","hc":12,"total_calls":1952,"unique_calls":1412,"unique_pct":72.3,"connected":510,"connect_pct":26.1,"calls_5min":30,"c5_conn_pct":5.9,"leads":88,"adm":7,"apps":0,"calls_lead":22.2,"calls_adm":278.9,"app_adm":0.0},{"name":"BLR.TL.Sharon Masih","sh":"Manoj","hc":11,"total_calls":1800,"unique_calls":1515,"unique_pct":84.2,"connected":450,"connect_pct":25.0,"calls_5min":22,"c5_conn_pct":4.9,"leads":36,"adm":2,"apps":0,"calls_lead":50.0,"calls_adm":900.0,"app_adm":0.0},{"name":"BLR.TL.Pawan.Kumar","sh":"Manoj","hc":13,"total_calls":1779,"unique_calls":1294,"unique_pct":72.7,"connected":510,"connect_pct":28.7,"calls_5min":35,"c5_conn_pct":6.9,"leads":59,"adm":3,"apps":1,"calls_lead":30.2,"calls_adm":593.0,"app_adm":33.3},{"name":"BLR.TL.Naveen Devaraj","sh":"Manoj","hc":8,"total_calls":1587,"unique_calls":1144,"unique_pct":72.1,"connected":325,"connect_pct":20.5,"calls_5min":9,"c5_conn_pct":2.8,"leads":31,"adm":0,"apps":0,"calls_lead":51.2,"calls_adm":0.0,"app_adm":0.0},{"name":"BLR.TL.Nusrath Khanum","sh":"Manoj","hc":13,"total_calls":1556,"unique_calls":1188,"unique_pct":76.3,"connected":398,"connect_pct":25.6,"calls_5min":45,"c5_conn_pct":11.3,"leads":91,"adm":3,"apps":3,"calls_lead":17.1,"calls_adm":518.7,"app_adm":100.0},{"name":"BLR.TL. Javed Basha","sh":"Manoj","hc":5,"total_calls":1403,"unique_calls":1095,"unique_pct":78.0,"connected":307,"connect_pct":21.9,"calls_5min":8,"c5_conn_pct":2.6,"leads":18,"adm":1,"apps":1,"calls_lead":77.9,"calls_adm":1403.0,"app_adm":100.0},{"name":"BLR.TL.Rahman Baig","sh":"Manoj","hc":6,"total_calls":1161,"unique_calls":917,"unique_pct":79.0,"connected":169,"connect_pct":14.6,"calls_5min":17,"c5_conn_pct":10.1,"leads":37,"adm":1,"apps":0,"calls_lead":31.4,"calls_adm":1161.0,"app_adm":0.0},{"name":"DEL.SG.TL.Shiva nagar","sh":"Sushant","hc":15,"total_calls":2390,"unique_calls":1872,"unique_pct":78.3,"connected":568,"connect_pct":23.8,"calls_5min":49,"c5_conn_pct":8.6,"leads":78,"adm":3,"apps":2,"calls_lead":30.6,"calls_adm":796.7,"app_adm":66.7},{"name":"DEL.SG.TL.Anurag Rai","sh":"Sushant","hc":15,"total_calls":2274,"unique_calls":1786,"unique_pct":78.5,"connected":574,"connect_pct":25.2,"calls_5min":20,"c5_conn_pct":3.5,"leads":53,"adm":1,"apps":2,"calls_lead":42.9,"calls_adm":2274.0,"app_adm":200.0},{"name":"DEL.TL.Mahima Yadav","sh":"Sushant","hc":12,"total_calls":2199,"unique_calls":1795,"unique_pct":81.6,"connected":545,"connect_pct":24.8,"calls_5min":24,"c5_conn_pct":4.4,"leads":64,"adm":4,"apps":3,"calls_lead":34.4,"calls_adm":549.8,"app_adm":75.0},{"name":"DEL.TL.Anurag Singh","sh":"Sushant","hc":12,"total_calls":2156,"unique_calls":1796,"unique_pct":83.3,"connected":410,"connect_pct":19.0,"calls_5min":25,"c5_conn_pct":6.1,"leads":69,"adm":2,"apps":3,"calls_lead":31.2,"calls_adm":1078.0,"app_adm":150.0},{"name":"DEL.SG.TL.Kushagra Tewari","sh":"Sushant","hc":11,"total_calls":1795,"unique_calls":1405,"unique_pct":78.3,"connected":411,"connect_pct":22.9,"calls_5min":28,"c5_conn_pct":6.8,"leads":63,"adm":0,"apps":3,"calls_lead":28.5,"calls_adm":0.0,"app_adm":0.0},{"name":"DEL.SG.TL.Amit Sharma","sh":"Sushant","hc":13,"total_calls":1420,"unique_calls":1028,"unique_pct":72.4,"connected":358,"connect_pct":25.2,"calls_5min":39,"c5_conn_pct":10.9,"leads":75,"adm":5,"apps":1,"calls_lead":18.9,"calls_adm":284.0,"app_adm":20.0},{"name":"Ishmeet Arora","sh":"Sushant","hc":5,"total_calls":1078,"unique_calls":979,"unique_pct":90.8,"connected":315,"connect_pct":29.2,"calls_5min":4,"c5_conn_pct":1.3,"leads":3,"adm":0,"apps":0,"calls_lead":359.3,"calls_adm":0.0,"app_adm":0.0},{"name":"DEL.TL.Sahil Juneja","sh":"Sushant","hc":4,"total_calls":417,"unique_calls":378,"unique_pct":90.6,"connected":65,"connect_pct":15.6,"calls_5min":3,"c5_conn_pct":4.6,"leads":18,"adm":0,"apps":0,"calls_lead":23.2,"calls_adm":0.0,"app_adm":0.0},{"name":"BLR.UT.TL.Rohit Chintu","sh":"Rohit","hc":18,"total_calls":3424,"unique_calls":2696,"unique_pct":78.7,"connected":912,"connect_pct":26.6,"calls_5min":50,"c5_conn_pct":5.5,"leads":64,"adm":1,"apps":1,"calls_lead":53.5,"calls_adm":3424.0,"app_adm":100.0},{"name":"BLR.UT.TL.Raunaq Raina Saraf","sh":"Rohit","hc":14,"total_calls":2678,"unique_calls":2152,"unique_pct":80.4,"connected":680,"connect_pct":25.4,"calls_5min":31,"c5_conn_pct":4.6,"leads":82,"adm":3,"apps":3,"calls_lead":32.7,"calls_adm":892.7,"app_adm":100.0},{"name":"BLR.UT.TL.Rajat Sarkar","sh":"Rohit","hc":16,"total_calls":2670,"unique_calls":2073,"unique_pct":77.6,"connected":619,"connect_pct":23.2,"calls_5min":46,"c5_conn_pct":7.4,"leads":82,"adm":3,"apps":2,"calls_lead":32.6,"calls_adm":890.0,"app_adm":66.7},{"name":"BLR.UT.TL.Deepak Singh","sh":"Rohit","hc":15,"total_calls":2627,"unique_calls":2120,"unique_pct":80.7,"connected":613,"connect_pct":23.3,"calls_5min":46,"c5_conn_pct":7.5,"leads":81,"adm":2,"apps":3,"calls_lead":32.4,"calls_adm":1313.5,"app_adm":150.0},{"name":"BLR.UT.TL.Aliyakousar Gousalajam Sayyad","sh":"Rohit","hc":14,"total_calls":2453,"unique_calls":1902,"unique_pct":77.5,"connected":439,"connect_pct":17.9,"calls_5min":47,"c5_conn_pct":10.7,"leads":70,"adm":1,"apps":0,"calls_lead":35.0,"calls_adm":2453.0,"app_adm":0.0},{"name":"BLR.UT.TL.Ajay Bhagwan Jaiswal","sh":"Rohit","hc":14,"total_calls":2007,"unique_calls":1501,"unique_pct":74.8,"connected":365,"connect_pct":18.2,"calls_5min":31,"c5_conn_pct":8.5,"leads":84,"adm":4,"apps":3,"calls_lead":23.9,"calls_adm":501.8,"app_adm":75.0},{"name":"BLR.M.TL.Ketan Narendar","sh":"Balaji V","hc":20,"total_calls":5157,"unique_calls":4478,"unique_pct":86.8,"connected":1196,"connect_pct":23.2,"calls_5min":29,"c5_conn_pct":2.4,"leads":42,"adm":2,"apps":1,"calls_lead":122.8,"calls_adm":2578.5,"app_adm":50.0},{"name":"BLR.M.TL.Niju Pazhangyaparambil Kavile","sh":"Balaji V","hc":20,"total_calls":4689,"unique_calls":3744,"unique_pct":79.8,"connected":805,"connect_pct":17.2,"calls_5min":39,"c5_conn_pct":4.8,"leads":93,"adm":1,"apps":1,"calls_lead":50.4,"calls_adm":4689.0,"app_adm":100.0},{"name":"BLR.M.TL.Girish Srirama","sh":"Balaji V","hc":15,"total_calls":3200,"unique_calls":2413,"unique_pct":75.4,"connected":737,"connect_pct":23.0,"calls_5min":38,"c5_conn_pct":5.2,"leads":65,"adm":2,"apps":0,"calls_lead":49.2,"calls_adm":1600.0,"app_adm":0.0},{"name":"BLR.M.TL.Shahnaz Bano","sh":"Balaji V","hc":11,"total_calls":2189,"unique_calls":1743,"unique_pct":79.6,"connected":423,"connect_pct":19.3,"calls_5min":41,"c5_conn_pct":9.7,"leads":40,"adm":2,"apps":2,"calls_lead":54.7,"calls_adm":1094.5,"app_adm":100.0},{"name":"BLR.M.TL.Abhishek Murthy","sh":"Balaji V","hc":10,"total_calls":1803,"unique_calls":1226,"unique_pct":68.0,"connected":405,"connect_pct":22.5,"calls_5min":27,"c5_conn_pct":6.7,"leads":42,"adm":0,"apps":1,"calls_lead":42.9,"calls_adm":0.0,"app_adm":0.0}],"tot":{"hc":377,"total_calls":69719,"unique_calls":55659,"unique_pct":79.8,"connected":15952,"connect_pct":22.9,"calls_5min":898,"c5_conn_pct":5.6,"leads":1729,"adm":62,"apps":42,"calls_lead":40.3,"calls_adm":1124.5,"app_adm":67.7},"um":{"hc":54,"total_calls":568,"unique_calls":374,"unique_pct":65.8,"connected":220,"connect_pct":38.7,"calls_5min":30,"c5_conn_pct":13.6,"leads":20,"adm":0,"apps":5},"umd":[{"name":"BL1.Mohammed Suheb Shaik","calls":73},{"name":"DEL.TL.Anurag Singh","calls":39},{"name":"BLR.UT.TL.Rohit Chintu","calls":35},{"name":"FOS.Rajan Kumar","calls":34},{"name":"BLR.TL.Rahman Baig","calls":33},{"name":"BLR.TL.Shaik.Sabir","calls":27},{"name":"Amar Product","calls":24},{"name":"BL1.Nandita","calls":23},{"name":"RT.Keshav Dwivedi","calls":21},{"name":"DEL.SG.TL.Shiva nagar","calls":20},{"name":"BL1.Indhu Karunakaran","calls":19},{"name":"DEL.SG.TL.Amit Sharma","calls":17},{"name":"BL1.Mohammad Shahzad","calls":17},{"name":"BLR.UT.TL.Sabreen Mahammad Rafiq Shikaripur","calls":16},{"name":"DEL.TL.Mahima Yadav","calls":16},{"name":"BLR.UT.TL.Rajat Sarkar","calls":12},{"name":"FOS.Rushikesh Rudrawar","calls":12},{"name":"FOS.Ranjit Mule","calls":11},{"name":"BLR.TL.Nikita Sadarangani","calls":9},{"name":"BLR.M.TL.Girish Srirama","calls":9},{"name":"BLR.UT.TL.Ajay Bhagwan Jaiswal","calls":9},{"name":"BLR.TL.Nusrath Khanum","calls":8},{"name":"DEL.SG.TL.Anurag Rai","calls":8},{"name":"RT.Megha Parit","calls":7},{"name":"BQA.Mrunal Jitendra Jadhav","calls":7},{"name":"DEL.SG.TL.Kushagra Tewari","calls":6},{"name":"BLR.M.TL.Niju Pazhangyaparambil Kavile","calls":6},{"name":"BLR.M.TL.Abhishek Murthy","calls":5},{"name":"BLR.TL.Pawan.Kumar","calls":5},{"name":"BLR.TL.Naveen Korra","calls":4},{"name":"BLR.TL.Naveen Devaraj","calls":3},{"name":"DEL.SG.Ankit Kumar","calls":3},{"name":"Bobba Product","calls":3},{"name":"DEL.TL.Sahil Juneja","calls":2},{"name":"BLR.UT.TL.Deepak Singh","calls":2},{"name":"RT.Dhiraj Kulkarni","calls":2},{"name":"BQA.Sumera Banu S","calls":2},{"name":"BLR.M.TL.Ketan Narendar","calls":2},{"name":"BQA.Deepak Kumar","calls":2},{"name":"BLR.TL.Arati Gupta","calls":1},{"name":"BLR.Iqra Khan","calls":1},{"name":"BLR.TL. Javed Basha","calls":1},{"name":"BLR.M.Soumik","calls":1},{"name":"BLR.M.Arshad Ali","calls":1},{"name":"Arjun Product","calls":1},{"name":"BLR.M.TL.Sakshi","calls":1},{"name":"BQA.Jai Chand","calls":1},{"name":"BQA.Nihal Ismail Zabiulla","calls":1},{"name":"DQA.Khushbu Gupta","calls":1},{"name":"DQA.Anil Kumar Singh","calls":1},{"name":"FOS.Ankur Jaiswal","calls":1},{"name":"DQA.Mayank Kumar Singh","calls":1},{"name":"FOS.Anshika Singh","calls":1},{"name":"Sudhakar Chaubey","calls":1}],"shs":["Balaji V","Manoj","Rohit","Sushant"]};
+const SHC={Manoj:"#6366f1",Sushant:"#f59e0b",Rohit:"#3b82f6","Balaji V":"#10b981"};
+let curTab=0,curSH="ALL";
+let charts={};
+const fmtN=n=>Number(n).toLocaleString("en-IN");
+const dc=id=>{if(charts[id]){charts[id].destroy();delete charts[id];}};
+const shortName=n=>n.replace(/^BLR\.TL\.\s*/,'').replace(/^BLR\.UT\.TL\./,'').replace(/^BLR\.M\.TL\./,'').replace(/^BLR\.OJT\./,'').replace(/^DEL\.SG\.TL\./,'').replace(/^DEL\.TL\./,'').split(' ')[0];
+
+function getFiltered(){
+  if(curSH==="ALL") return D.tl;
+  return D.tl.filter(r=>r.sh===curSH);
+}
+
+function buildKPIs(data,id){
+  const hc=data.reduce((s,r)=>s+r.hc,0);
+  const tc=data.reduce((s,r)=>s+r.total_calls,0);
+  const conn=data.reduce((s,r)=>s+r.connected,0);
+  const uniq=data.reduce((s,r)=>s+r.unique_calls,0);
+  const c5=data.reduce((s,r)=>s+r.calls_5min,0);
+  const leads=data.reduce((s,r)=>s+r.leads,0);
+  const adm=data.reduce((s,r)=>s+r.adm,0);
+  const apps=data.reduce((s,r)=>s+r.apps,0);
+  const cpct=uniq>0?(conn/uniq*100).toFixed(1):0;
+  const c5pct=conn>0?(c5/conn*100).toFixed(1):0;
+
+  document.getElementById(id).innerHTML=[
+    {l:"HC",v:hc,c:"var(--head)"},{l:"Total Calls",v:fmtN(tc),c:"var(--head)"},
+    {l:"Unique Calls",v:fmtN(uniq),c:"var(--blu)"},{l:"Connected",v:fmtN(conn),c:"var(--g)"},
+    {l:"Connect %",v:cpct+"%",c:parseFloat(cpct)>=25?"var(--g)":"var(--r)"},
+    {l:"Calls > 5 min",v:fmtN(c5),c:"var(--pur)"},{l:">5min / Conn",v:c5pct+"%",c:parseFloat(c5pct)>=5?"var(--g)":"var(--r)"},
+    {l:"Leads",v:fmtN(leads),c:"var(--acc)"},{l:"Admissions",v:adm,c:"var(--g)"},
+    {l:"Apps",v:apps,c:"var(--a)"},{l:"Calls/Lead",v:leads>0?(tc/leads).toFixed(1):"—",c:"var(--a)"},
+    {l:"App/Adm",v:adm>0?((apps/adm)*100).toFixed(0)+"%":"—",c:"var(--pur)"}
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l}</div><div class="val" style="color:${k.c}">${k.v}</div></div>`).join("");
+}
+
+function renderPage0(){
+  const data=getFiltered().sort((a,b)=>b.total_calls-a.total_calls);
+  buildKPIs(data,"kpis0");
+  document.getElementById("tblTitle").textContent=`Team Lead Performance — ${curSH==="ALL"?"All Sales Heads":curSH}`;
+
+  let h=`<thead><tr><th>#</th><th>TL Name</th><th>Sales Head</th><th>HC</th><th>Total Calls</th><th>Unique</th><th>Unique%</th><th>Connected</th><th style="color:var(--g)">Conn%</th><th>Calls>5m</th><th style="color:var(--pur)">>5m/Conn</th><th>Leads</th><th style="color:var(--g)">Adm</th><th style="color:var(--a)">Apps</th><th>Calls/Lead</th><th>App/Adm</th></tr></thead><tbody>`;
+  data.forEach((r,i)=>{
+    const connOk=r.connect_pct>=25;const c5Ok=r.c5_conn_pct>=5;
+    h+=`<tr><td style="color:#475569">${i+1}</td><td>${r.name}</td><td><span class="shc" style="background:${SHC[r.sh]||'#666'}"></span>${r.sh}</td><td>${r.hc}</td><td>${fmtN(r.total_calls)}</td><td>${fmtN(r.unique_calls)}</td><td>${r.unique_pct}%</td><td>${fmtN(r.connected)}</td><td style="color:${connOk?'var(--g)':'var(--r)'};font-weight:700">${r.connect_pct}%</td><td>${fmtN(r.calls_5min)}</td><td style="color:${c5Ok?'var(--g)':'var(--r)'};font-weight:600">${r.c5_conn_pct}%</td><td>${r.leads}</td><td style="color:var(--g);font-weight:700">${r.adm}</td><td style="color:var(--a)">${r.apps}</td><td>${r.calls_lead}</td><td>${r.app_adm}%</td></tr>`;
+  });
+  // Total
+  const t=D.tot;
+  h+=`<tr class="tot"><td></td><td>TOTAL</td><td></td><td>${t.hc}</td><td>${fmtN(t.total_calls)}</td><td>${fmtN(t.unique_calls)}</td><td>${t.unique_pct}%</td><td>${fmtN(t.connected)}</td><td>${t.connect_pct}%</td><td>${fmtN(t.calls_5min)}</td><td>${t.c5_conn_pct}%</td><td>${t.leads}</td><td>${t.adm}</td><td>${t.apps}</td><td>${t.calls_lead}</td><td>${t.app_adm}%</td></tr></tbody>`;
+  document.getElementById("tlTable").innerHTML=h;
+
+  const names=data.map(r=>shortName(r.name));
+  dc("ch0a");charts["ch0a"]=new Chart(document.getElementById("ch0a"),{type:"bar",data:{labels:names,datasets:[{label:"Connect %",data:data.map(r=>r.connect_pct),backgroundColor:data.map(r=>r.connect_pct>=25?"rgba(16,185,129,0.7)":"rgba(239,68,68,0.5)"),borderRadius:3}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#64748b",font:{size:9},callback:v=>v+"%"},grid:{color:"rgba(255,255,255,0.03)"}},y:{ticks:{color:"#94a3b8",font:{size:8}},grid:{display:false}}}}});
+
+  dc("ch0b");charts["ch0b"]=new Chart(document.getElementById("ch0b"),{type:"bar",data:{labels:names,datasets:[{label:">5min/Conn %",data:data.map(r=>r.c5_conn_pct),backgroundColor:data.map(r=>r.c5_conn_pct>=5?"rgba(147,51,234,0.7)":"rgba(239,68,68,0.5)"),borderRadius:3}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{ticks:{color:"#64748b",font:{size:9},callback:v=>v+"%"},grid:{color:"rgba(255,255,255,0.03)"}},y:{ticks:{color:"#94a3b8",font:{size:8}},grid:{display:false}}}}});
+
+  dc("ch0c");charts["ch0c"]=new Chart(document.getElementById("ch0c"),{type:"bar",data:{labels:names,datasets:[{label:"Leads",data:data.map(r=>r.leads),backgroundColor:"rgba(99,102,241,0.6)",borderRadius:3},{label:"Admissions",data:data.map(r=>r.adm),backgroundColor:"rgba(16,185,129,0.7)",borderRadius:3}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{labels:{color:"#94a3b8",font:{size:9}}}},scales:{x:{ticks:{color:"#64748b",font:{size:9}},grid:{color:"rgba(255,255,255,0.03)"}},y:{ticks:{color:"#94a3b8",font:{size:8}},grid:{display:false}}}}});
+
+  dc("ch0d");charts["ch0d"]=new Chart(document.getElementById("ch0d"),{type:"scatter",data:{datasets:D.shs.map(sh=>({label:sh,data:D.tl.filter(r=>r.sh===sh).map(r=>({x:r.hc,y:r.total_calls,name:shortName(r.name)})),backgroundColor:SHC[sh]+"aa",pointRadius:6}))},options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8",font:{size:10}}},tooltip:{callbacks:{label:ctx=>`${ctx.raw.name}: HC=${ctx.raw.x}, Calls=${fmtN(ctx.raw.y)}`}}},scales:{x:{title:{display:true,text:"Head Count",color:"#64748b"},ticks:{color:"#64748b"},grid:{color:"rgba(255,255,255,0.03)"}},y:{title:{display:true,text:"Total Calls",color:"#64748b"},ticks:{color:"#64748b",callback:v=>v>=1000?(v/1000).toFixed(0)+"k":v},grid:{color:"rgba(255,255,255,0.03)"}}}}});
+}
+
+function renderPage1(){
+  // Aggregate by SH
+  const shData=D.shs.map(sh=>{
+    const tls=D.tl.filter(r=>r.sh===sh);
+    const o={name:sh,tl_count:tls.length,hc:0,total_calls:0,unique_calls:0,connected:0,calls_5min:0,leads:0,adm:0,apps:0};
+    tls.forEach(r=>{o.hc+=r.hc;o.total_calls+=r.total_calls;o.unique_calls+=r.unique_calls;o.connected+=r.connected;o.calls_5min+=r.calls_5min;o.leads+=r.leads;o.adm+=r.adm;o.apps+=r.apps;});
+    o.unique_pct=o.total_calls>0?(o.unique_calls/o.total_calls*100).toFixed(1):0;
+    o.connect_pct=o.unique_calls>0?(o.connected/o.unique_calls*100).toFixed(1):0;
+    o.c5_pct=o.connected>0?(o.calls_5min/o.connected*100).toFixed(1):0;
+    o.calls_lead=o.leads>0?(o.total_calls/o.leads).toFixed(1):"—";
+    o.app_adm=o.adm>0?((o.apps/o.adm)*100).toFixed(0)+"%":"—";
+    return o;
+  });
+  buildKPIs(D.tl,"kpis1");
+
+  let h=`<thead><tr><th>Sales Head</th><th>TLs</th><th>HC</th><th>Total Calls</th><th>Unique</th><th>Unique%</th><th>Connected</th><th style="color:var(--g)">Conn%</th><th>Calls>5m</th><th style="color:var(--pur)">>5m/Conn</th><th>Leads</th><th style="color:var(--g)">Adm</th><th style="color:var(--a)">Apps</th><th>Calls/Lead</th><th>App/Adm</th></tr></thead><tbody>`;
+  shData.forEach(r=>{
+    h+=`<tr><td><span class="shc" style="background:${SHC[r.name]}"></span>${r.name}</td><td>${r.tl_count}</td><td>${r.hc}</td><td>${fmtN(r.total_calls)}</td><td>${fmtN(r.unique_calls)}</td><td>${r.unique_pct}%</td><td>${fmtN(r.connected)}</td><td style="color:var(--g);font-weight:700">${r.connect_pct}%</td><td>${fmtN(r.calls_5min)}</td><td style="color:var(--pur);font-weight:600">${r.c5_pct}%</td><td>${r.leads}</td><td style="color:var(--g);font-weight:700">${r.adm}</td><td style="color:var(--a)">${r.apps}</td><td>${r.calls_lead}</td><td>${r.app_adm}</td></tr>`;
+  });
+  h+=`</tbody>`;
+  document.getElementById("shTable").innerHTML=h;
+
+  const names=shData.map(r=>r.name);
+  dc("ch1a");charts["ch1a"]=new Chart(document.getElementById("ch1a"),{type:"bar",data:{labels:names,datasets:[{label:"HC",data:shData.map(r=>r.hc),backgroundColor:"rgba(99,102,241,0.6)",borderRadius:4,yAxisID:"y"},{label:"Total Calls",data:shData.map(r=>r.total_calls),backgroundColor:"rgba(59,130,246,0.6)",borderRadius:4,yAxisID:"y1"}]},options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8",font:{size:10}}}},scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,0.03)"}},y:{position:"left",ticks:{color:"#6366f1"},grid:{color:"rgba(255,255,255,0.03)"}},y1:{position:"right",ticks:{color:"#3b82f6",callback:v=>v>=1000?(v/1000)+"k":v},grid:{display:false}}}}});
+
+  dc("ch1b");charts["ch1b"]=new Chart(document.getElementById("ch1b"),{type:"bar",data:{labels:names,datasets:[{label:"Connect %",data:shData.map(r=>parseFloat(r.connect_pct)),backgroundColor:names.map(n=>SHC[n]+"bb"),borderRadius:4},{label:"Admissions",data:shData.map(r=>r.adm),backgroundColor:"rgba(16,185,129,0.7)",borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:"#94a3b8",font:{size:10}}}},scales:{x:{ticks:{color:"#94a3b8"},grid:{color:"rgba(255,255,255,0.03)"}},y:{ticks:{color:"#64748b"},grid:{color:"rgba(255,255,255,0.03)"}}}}});
+}
+
+function renderPage2(){
+  const u=D.um;
+  document.getElementById("kpis2").innerHTML=[
+    {l:"Unmapped HC",v:u.hc,c:"var(--r)"},{l:"Total Calls",v:fmtN(u.total_calls),c:"#94a3b8"},
+    {l:"Unique Calls",v:fmtN(u.unique_calls),c:"var(--blu)"},{l:"Unique %",v:u.unique_pct+"%",c:"var(--blu)"},
+    {l:"Connected",v:fmtN(u.connected),c:"var(--g)"},{l:"Connect %",v:u.connect_pct+"%",c:"var(--g)"},
+    {l:"Calls > 5 min",v:u.calls_5min,c:"var(--pur)"},{l:">5m/Conn",v:u.c5_conn_pct+"%",c:"var(--pur)"},
+    {l:"Leads",v:u.leads,c:"var(--acc)"},{l:"Admissions",v:u.adm,c:"var(--g)"},{l:"Apps",v:u.apps,c:"var(--a)"}
+  ].map(k=>`<div class="kpi"><div class="lbl">${k.l}</div><div class="val" style="color:${k.c}">${k.v}</div></div>`).join("");
+
+  let h=`<thead><tr><th>#</th><th>Counselor Name</th><th>Calls</th></tr></thead><tbody>`;
+  D.umd.forEach((r,i)=>{h+=`<tr><td style="color:#475569">${i+1}</td><td>${r.name}</td><td>${r.calls}</td></tr>`;});
+  h+=`<tr class="tot"><td></td><td>TOTAL (${D.umd.length} counselors)</td><td>${D.umd.reduce((s,r)=>s+r.calls,0)}</td></tr></tbody>`;
+  document.getElementById("umTable").innerHTML=h;
+}
+
+function render(){
+  document.querySelectorAll(".page").forEach((p,i)=>{p.classList.toggle("hide",i!==curTab)});
+  if(curTab===0)renderPage0();else if(curTab===1)renderPage1();else renderPage2();
+}
+
+function init(){
+  const sel=document.getElementById("shSel");
+  D.shs.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
+  sel.onchange=()=>{curSH=sel.value;render();};
+  document.querySelectorAll(".tab").forEach(t=>{t.onclick=()=>{curTab=+t.dataset.tab;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("on"));t.classList.add("on");render();};});
+  render();
+}
+init();
+</script>
+</body>
+</html>
